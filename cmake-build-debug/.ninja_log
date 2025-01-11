@@ -1,3 +1,21 @@
 # ninja log v5
 5	575	7583186107132507	CMakeFiles/Projekt_4.dir/main.cpp.obj	33bb1d74dc412803
 583	707	7583186108413260	Projekt_4.exe	94417991fe391f04
+10	356	7583208559203665	CMakeFiles/Projekt_4.dir/LoadFromFile.cpp.obj	a77b39ff6a424beb
+3	558	7583208561226700	CMakeFiles/Projekt_4.dir/main.cpp.obj	33bb1d74dc412803
+14	588	7583208561538140	CMakeFiles/Projekt_4.dir/Matrix.cpp.obj	9c536bece3a40021
+17	766	7583208563320884	CMakeFiles/Projekt_4.dir/ConfigFile.cpp.obj	5026210053ca806e
+7	853	7583208564180573	CMakeFiles/Projekt_4.dir/GeneticAlgorithm.cpp.obj	e5f560f8079d3903
+853	978	7583208565421552	Projekt_4.exe	538b0546b1e0f860
+15	835	7583220473745144	CMakeFiles/Projekt_4.dir/Matrix.cpp.obj	9c536bece3a40021
+5	907	7583220474458408	CMakeFiles/Projekt_4.dir/main.cpp.obj	33bb1d74dc412803
+21	1086	7583220476255548	CMakeFiles/Projekt_4.dir/ConfigFile.cpp.obj	5026210053ca806e
+11	1192	7583220477283393	CMakeFiles/Projekt_4.dir/GeneticAlgorithm.cpp.obj	e5f560f8079d3903
+1192	1334	7583220478676560	Projekt_4.exe	538b0546b1e0f860
+4	259	7583226754107165	CMakeFiles/Projekt_4.dir/main.cpp.obj	33bb1d74dc412803
+11	647	7583226757993959	CMakeFiles/Projekt_4.dir/ConfigFile.cpp.obj	5026210053ca806e
+8	720	7583226758701940	CMakeFiles/Projekt_4.dir/GeneticAlgorithm.cpp.obj	e5f560f8079d3903
+720	852	7583226759987425	Projekt_4.exe	538b0546b1e0f860
+8	675	7583226879394963	CMakeFiles/Projekt_4.dir/ConfigFile.cpp.obj	5026210053ca806e
+3	763	7583226880281672	CMakeFiles/Projekt_4.dir/GeneticAlgorithm.cpp.obj	e5f560f8079d3903
+763	897	7583226881592611	Projekt_4.exe	538b0546b1e0f860

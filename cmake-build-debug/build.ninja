@@ -73,6 +73,12 @@ build CMakeFiles/Projekt_4.dir/Matrix.cpp.obj: CXX_COMPILER__Projekt_4_unscanned
   OBJECT_DIR = CMakeFiles\Projekt_4.dir
   OBJECT_FILE_DIR = CMakeFiles\Projekt_4.dir
 
+build CMakeFiles/Projekt_4.dir/ConfigFile.cpp.obj: CXX_COMPILER__Projekt_4_unscanned_Debug C$:/Users/pitko/Desktop/Studia/PEA/Projekt_4/ConfigFile.cpp || cmake_object_order_depends_target_Projekt_4
+  DEP_FILE = CMakeFiles\Projekt_4.dir\ConfigFile.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\Projekt_4.dir
+  OBJECT_FILE_DIR = CMakeFiles\Projekt_4.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Projekt_4
@@ -81,7 +87,7 @@ build CMakeFiles/Projekt_4.dir/Matrix.cpp.obj: CXX_COMPILER__Projekt_4_unscanned
 #############################################
 # Link the executable Projekt_4.exe
 
-build Projekt_4.exe: CXX_EXECUTABLE_LINKER__Projekt_4_Debug CMakeFiles/Projekt_4.dir/main.cpp.obj CMakeFiles/Projekt_4.dir/GeneticAlgorithm.cpp.obj CMakeFiles/Projekt_4.dir/LoadFromFile.cpp.obj CMakeFiles/Projekt_4.dir/Matrix.cpp.obj
+build Projekt_4.exe: CXX_EXECUTABLE_LINKER__Projekt_4_Debug CMakeFiles/Projekt_4.dir/main.cpp.obj CMakeFiles/Projekt_4.dir/GeneticAlgorithm.cpp.obj CMakeFiles/Projekt_4.dir/LoadFromFile.cpp.obj CMakeFiles/Projekt_4.dir/Matrix.cpp.obj CMakeFiles/Projekt_4.dir/ConfigFile.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\Projekt_4.dir

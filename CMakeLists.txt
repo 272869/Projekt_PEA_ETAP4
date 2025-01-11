@@ -7,4 +7,6 @@ add_executable(Projekt_4 main.cpp
         Matrix.h
         GeneticAlgorithm.cpp
         LoadFromFile.cpp
-        Matrix.cpp)
+        Matrix.cpp
+        ConfigFile.h
+        ConfigFile.cpp)

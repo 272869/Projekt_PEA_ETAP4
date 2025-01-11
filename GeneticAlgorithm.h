@@ -15,7 +15,6 @@ using namespace std;
 class GeneticAlgorithm {
 private:
 
-
     Matrix *matrixWeights;
 
     std::vector<std::pair<int, std::vector<unsigned int>>> population;
@@ -76,7 +75,11 @@ private:
     static void showPath(std::vector<unsigned int> path);
 
 public:
-    GeneticAlgorithm();
+
+    GeneticAlgorithm() {
+        matrixWeights = new Matrix();
+        matrix = matrixWeights->getMatrixWeights();
+    }
 
     void startAlgorithm(double probability, int populationSize, int populationCopyNumber,
                         int generationNumber,  int selectionType, int crossoverType);

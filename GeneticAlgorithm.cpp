@@ -3,29 +3,10 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
-//#include <ctime>
 
 using namespace std;
 
-GeneticAlgorithm::GeneticAlgorithm() {
-    matrixWeights = new Matrix();
-    matrix = matrixWeights->getMatrixWeights();
-}
 
-/**
- *
- * @param probability - prawdopodobieństwo wystąpienia mutacji
- * @param populationSize - rozmiar populacji w jednej generacji
- * @param populationCopyNumber - liczba osobników populacji przenoszona do kolejnej epoki
- * @param generationNumber - liczba generacji
- * @param selectionType - wybór selekcji:
- *          0 - selekcja koła ruletki
- *          1 - selekcja turniejowa
- *          2 - selekcja rankingowa
- * @param crossoverType - wybór typu krzyżowania:
- *          0 - Partially Mapped Crossover
- *          1 - Order Crossover Operator
- */
 void GeneticAlgorithm::startAlgorithm(double probability, int populationSize, int populationCopyNumber,
                                       int generationNumber, int selectionType, int crossoverType) {
     //srand(time(nullptr));

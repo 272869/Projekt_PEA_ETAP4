@@ -4,13 +4,10 @@
 
 ///tworzenie tablicy wag
 void Matrix::createTables() {
-
     matrixWeights = new int *[size];
-
     for (int i = 0; i < size; i++) {
         matrixWeights[i] = new int[size];
     }
-
 }
 
 ///wczytanie pliku
