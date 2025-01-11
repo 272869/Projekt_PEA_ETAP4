@@ -6,7 +6,6 @@
 
 using namespace std;
 
-
 void GeneticAlgorithm::startAlgorithm(double probability, int populationSize, int populationCopyNumber,
                                       int generationNumber, int selectionType, int crossoverType) {
     //srand(time(nullptr));
@@ -450,4 +449,3 @@ void GeneticAlgorithm::copyPopulation(int number) {
     for (int i = 0; i < number; i++) p2.push_back(population.at(i));
     population = p2;
 }
-

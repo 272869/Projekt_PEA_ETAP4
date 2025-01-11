@@ -1,9 +1,3 @@
-//
-// Created by pitko on 11.01.2025.
-//
-
-#ifndef PROJEKT_4_GENETICALGORITHM_H
-#define PROJEKT_4_GENETICALGORITHM_H
 
 #include <vector>
 #include <random>
@@ -13,7 +7,9 @@
 using namespace std;
 
 class GeneticAlgorithm {
+
 private:
+
 
     Matrix *matrixWeights;
 
@@ -75,11 +71,16 @@ private:
     static void showPath(std::vector<unsigned int> path);
 
 public:
-
     GeneticAlgorithm() {
         matrixWeights = new Matrix();
         matrix = matrixWeights->getMatrixWeights();
     }
+
+    explicit GeneticAlgorithm(const std::string& fileName) {
+        matrixWeights = new Matrix(fileName);
+        matrix = matrixWeights->getMatrixWeights();
+    }
+
 
     void startAlgorithm(double probability, int populationSize, int populationCopyNumber,
                         int generationNumber,  int selectionType, int crossoverType);
@@ -90,4 +91,3 @@ public:
 };
 
 
-#endif //PROJEKT_4_GENETICALGORITHM_H

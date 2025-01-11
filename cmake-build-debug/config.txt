@@ -1,6 +1,6 @@
 mode: test                   # generate tryb pomiarowy, test tryb testowy
                              # ustawienia trybu testowego
-fileName: ftv47.atsp         # scieżka do pliku ftv47.atsp/ftv170.atsp/rbg403.atsp
+fileName: matrix6.atsp         # scieżka do pliku ftv47.atsp/ftv170.atsp/rbg403.atsp
 probability: 0.6             # prawdopodobieństwo wystąpienia mutacji
 populationSize: 50           # rozmiar populacji w jednej generacji
 populationCopyNumber: 10      # liczba osobników populacji przenoszona do kolejnej epoki
