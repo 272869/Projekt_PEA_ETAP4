@@ -6,13 +6,9 @@
 
 using namespace std;
 
-void GeneticAlgorithm::startAlgorithm(double probability, int populationSize, int populationCopyNumber,
-                                      int generationNumber, int selectionType, int crossoverType) {
-    //srand(time(nullptr));
+void GeneticAlgorithm::startAlgorithm(double probability, int populationSize, int populationCopyNumber, int generationNumber, int selectionType, int crossoverType) {
     srand(100);
     mt19937 gen(rand());
-
-
     generateRandomParents(gen, populationCopyNumber);
     mainLoop(gen, probability, populationSize, populationCopyNumber, generationNumber, selectionType, crossoverType);
 }
@@ -30,8 +26,8 @@ void GeneticAlgorithm::mainLoop(mt19937 &engine, double probability, int populat
     for (int i = 0; i < generationNumber; i++) {
 
         for (int j = 0; j < populationSize; j++) {
-            vector<unsigned> child1(matrixWeights->getSize(), 0);
-            vector<unsigned> child2(matrixWeights->getSize(), 0);
+            vector<unsigned> child1(matrixWeights->size, 0);
+            vector<unsigned> child2(matrixWeights->size, 0);
 
             switch (selectionType) {
                 case 0: {
@@ -200,7 +196,7 @@ void GeneticAlgorithm::checkMutation(std::mt19937 engine, vector<unsigned int> &
 void GeneticAlgorithm::generateRandomParents(std::mt19937 engine, int populationCopyNumber) {
     vector<unsigned int> vertexes;
 
-    for (unsigned int i = 0; i < matrixWeights->getSize(); i++) vertexes.push_back(i);
+    for (unsigned int i = 0; i < matrixWeights->size; i++) vertexes.push_back(i);
 
     for (unsigned int i = 0; i < populationCopyNumber; i++) {
         shuffle(vertexes.begin(), vertexes.end(), engine);
@@ -220,7 +216,7 @@ void
 GeneticAlgorithm::makePartiallyMappedCrossover(const vector<unsigned int> &parent1, const vector<unsigned int> &parent2,
                                                std::vector<unsigned int> &child1, std::vector<unsigned int> &child2,
                                                std::mt19937 engine) {
-    uniform_int_distribution<> cutPoints(1, matrixWeights->getSize() - 1);
+    uniform_int_distribution<> cutPoints(1, matrixWeights->size - 1);
 
 
     int a = 0, b = 0;
@@ -412,13 +408,10 @@ int GeneticAlgorithm::swapNeighbors(vector<unsigned int> *path, int i, int j) {
 
 // wyświetlanie i obliczanie PRD
 void GeneticAlgorithm::showPRD(int iter) {
-    std::cout << iter
-              << " "
-              << finalCost
-              << "   "
-              << 100 * (((float) (finalCost - matrixWeights->getOptimum()))
-                        / (float) matrixWeights->getOptimum())
-              << "% \n";
+    double bestcost403 = 2465;
+    double bestcost170 = 2755;
+    double bestcost47 = 1776;
+    std::cout << iter<< " "<< finalCost<< "   "<< 100 * (finalCost - bestcost47)/ (bestcost47)<< "% \n";
 }
 
 // wyświetlanie ścieżki

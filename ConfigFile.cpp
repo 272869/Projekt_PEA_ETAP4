@@ -50,10 +50,8 @@ void ConfigFile::handleGenerateMode() {
 
 void ConfigFile::handleTestMode(const std::string& fileName, double probability, int populationSize, int populationCopyNumber, int generationNumber, int selectionType,int crossoverType) {
     // Wczytanie macierzy z pliku
-
-
     GeneticAlgorithm *gens;
     gens = new GeneticAlgorithm(fileName);
-    gens->startAlgorithm(probability, populationSize, populationCopyNumber, generationNumber, selectionType, crossoverType);
+    //gens->startAlgorithm(probability, populationSize, populationCopyNumber, generationNumber, selectionType, crossoverType);
     delete gens;
 }
