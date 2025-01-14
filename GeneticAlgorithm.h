@@ -15,7 +15,7 @@ private:
     int **matrix;
     int finalCost = INT_MAX;
     std::vector<unsigned int> globalPath;
-    void mainLoop(mt19937 &engine, double probability, int populationSize, int populationCopyNumber, int generationNumber, int selectionType, int crossoverType);
+    void mainLoop(mt19937 &engine, double probability, int populationSize, int populationCopyNumber,int generationNumber, int crossoverType, double crossoverCoefficient);
     void generateRandomParents(std::mt19937 engine, int populationCopyNumber);
     void countFitnessValue(vector<float> &fitness);
     pair<int, int> rouletteWheelSelection(mt19937 &engine, vector<float> &fitness);
@@ -36,12 +36,12 @@ public:
     explicit GeneticAlgorithm(const std::string& fileName) {
         matrixWeights = new FileReader();
         matrix = matrixWeights->loadFromFile(fileName);
-        matrixWeights->showTab();
+        //matrixWeights->showTab();
     }
 
-    void startAlgorithm(double probability, int populationSize, int populationCopyNumber, int generationNumber,  int selectionType, int crossoverType);
+    void startAlgorithm(double probability, int populationSize, int populationCopyNumber, int generationNumber, int crossoverType, double crossoverCoefficient);
     void makeMutationRandomly(pair<int, vector<unsigned int>> *path, mt19937 &engine);
-    pair<int, int> rankSelection(mt19937 &engine, vector<float> &fitness);
+
 };
 
 

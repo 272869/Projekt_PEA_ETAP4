@@ -1,9 +1,9 @@
 mode: test                   # generate tryb pomiarowy, test tryb testowy
                              # ustawienia trybu testowego
-fileName: ftv47.atsp         # scieżka do pliku ftv47.atsp/ftv170.atsp/rbg403.atsp
-probability: 0.4             # prawdopodobieństwo wystąpienia mutacji
-populationSize: 300           # rozmiar populacji w jednej generacji
+fileName: ftv170.atsp         # scieżka do pliku ftv47.atsp/ftv170.atsp/rbg403.atsp
+probability: 0.01            # prawdopodobieństwo wystąpienia mutacji
+populationSize: 300          # rozmiar populacji w jednej generacji
 populationCopyNumber: 30     # liczba osobników populacji przenoszona do kolejnej epoki
-generationNumber: 300          # liczba generacji
-selectionType: 1             # wybór selekcji: 0 - koła ruletki, 1 - turniejowa, 2 - rankingowa
+generationNumber: 300        # liczba generacji
+crossoverCoefficient: 0.8    # wybór selekcji: 0 - koła ruletki, 1 - turniejowa, 2 - rankingowa
 crossoverType: 0             # wybór typu krzyżowania: 0 - Partially Mapped Crossover, 1 - Order Crossover Operator
