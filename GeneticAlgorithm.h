@@ -9,6 +9,7 @@ class GeneticAlgorithm {
 private:
     FileReader *matrixWeights;
     std::vector<std::pair<int, std::vector<unsigned int>>> population;
+    double bestCost = std::numeric_limits<double>::infinity(); // Inicjalizacja najlepszego kosztu na bardzo dużą wartość
 
     static bool cmp(std::pair<int, std::vector<unsigned int>> &a, std::pair<int, std::vector<unsigned int>> &b) {
         return a.first < b.first;

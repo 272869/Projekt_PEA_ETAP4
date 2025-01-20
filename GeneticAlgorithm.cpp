@@ -14,8 +14,7 @@ void GeneticAlgorithm::startAlgorithm(double probability,int populationSize,doub
     mainLoop(gen, probability,populationSize, maxTime,  crossoverType, crossoverCoefficient); // Rozpoczęcie głównej pętli algorytmu
 }
 
-// Główna pętla algorytmu genetycznego
-void GeneticAlgorithm::mainLoop(mt19937 &engine, double probability,int populationSize,double maxTime, int crossoverType, double crossoverCoefficient) {
+void GeneticAlgorithm::mainLoop(mt19937 &engine, double probability, int populationSize, double maxTime, int crossoverType, double crossoverCoefficient) {
     pair<int, int> parents;
     auto pointer1 = population.begin(); // Wskaźnik na pierwszego rodzica
     auto pointer2 = population.begin(); // Wskaźnik na drugiego rodzica
@@ -23,8 +22,10 @@ void GeneticAlgorithm::mainLoop(mt19937 &engine, double probability,int populati
     Timer timer;
     timer.start(); // Uruchomienie zegara do mierzenia czasu
     uint64_t elapsedTime = 0;
-
     int iter = 0; // Licznik iteracji
+
+    bool improved = false; // Flaga do sprawdzenia, czy rozwiązanie zostało poprawione
+
     while (elapsedTime < static_cast<uint64_t>(maxTime * 1000000)) { // Pętla wykonuje się, dopóki czas trwania nie przekroczy maksymalnego czasu
         for (int j = 0; j < populationSize; j++) {
             vector<unsigned> child1(matrixWeights->size, 0); // Inicjalizacja pierwszego dziecka
@@ -57,15 +58,27 @@ void GeneticAlgorithm::mainLoop(mt19937 &engine, double probability,int populati
             checkMutation(engine, child1, probability, iter * populationSize + j); // Mutacja pierwszego dziecka
             checkMutation(engine, child2, probability, iter * populationSize + j); // Mutacja drugiego dziecka
         }
+
         sort(population.begin(), population.end(), cmp); // Sortowanie populacji po zakończeniu iteracji
         copyPopulation(populationSize); // Zachowanie najlepszych osobników
         iter++;
-        timer.stop();
-        elapsedTime = timer.timeperiod(); // Aktualizacja czasu trwania algorytmu
+
+        // Aktualizacja najlepszego kosztu, jeśli znaleziono lepsze rozwiązanie
+        if (population[0].first < bestCost) {  // Zakładam, że najlepszy koszt jest zapisany w `population[0].first`
+            bestCost = population[0].first;  // Aktualizacja najlepszego kosztu
+            if (!improved) {
+                timer.stop(); // Zatrzymanie zegara, gdy rozwiązanie zostaje poprawione
+                improved = true; // Ustawiamy flagę, że rozwiązanie zostało poprawione
+                elapsedTime = timer.timeperiod(); // Aktualizacja czasu, kiedy rozwiązanie zostało poprawione
+            }
+        }
     }
+
     showPath(globalPath); // Wyświetlenie najlepszej ścieżki
     showPRD(elapsedTime); // Wyświetlenie odchylenia PRD
 }
+
+
 
 // Funkcja obliczania wartości zdatności (dopasowania)
 void GeneticAlgorithm::countFitnessValue(vector<float> &fitness) {
@@ -335,7 +348,7 @@ void GeneticAlgorithm::showPRD(uint64_t elapsedTimeMicro) {
 
     // Wyświetlanie kosztu, procentowej różnicy i czasu wykonania w mikrosekundach
     std::cout << " " << finalCost << " "
-              << 100 * (finalCost - bestcost47) / bestcost47 << " " << elapsedTimeMicro << "\n";
+              << 100 * (finalCost - bestcost403) / bestcost403 << " " << elapsedTimeMicro << "\n";
 }
 
 // Wyświetlanie ścieżki

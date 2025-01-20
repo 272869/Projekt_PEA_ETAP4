@@ -15,6 +15,7 @@ public:
     void start();
     void stop();
     uint64_t timeperiod();
+    uint64_t subTime();
 };
 
 
