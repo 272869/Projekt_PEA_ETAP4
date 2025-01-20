@@ -41,17 +41,17 @@ void ConfigFile::parseConfig() {
     if (mode == "generate")
         handleGenerateMode();
     else if (mode == "test")
-        handleTestMode(config["fileName"], std::stod(config["probability"]),std::stoi(config["generationNumber"]),std::stod(config["crossoverCoefficient"]),std::stoi(config["crossoverType"]) );
+        handleTestMode(config["fileName"], std::stod(config["probability"]),std::stoi(config["populationSize"]),std::stoi(config["maxTime"]),std::stod(config["crossoverCoefficient"]),std::stoi(config["crossoverType"]) );
 }
 
 void ConfigFile::handleGenerateMode() {
     std::cout << "Tryb testowania danych\n";
 }
 
-void ConfigFile::handleTestMode(const std::string& fileName, double probability, int generationNumber, double crossoverCoefficient,int crossoverType) {
+void ConfigFile::handleTestMode(const std::string& fileName, double probability,int populationSize, int time, double crossoverCoefficient,int crossoverType) {
     // Wczytanie macierzy z pliku
     GeneticAlgorithm *gens;
     gens = new GeneticAlgorithm(fileName);
-    gens->startAlgorithm(probability,  generationNumber, crossoverType, crossoverCoefficient);
+    gens->startAlgorithm(probability,populationSize, time, crossoverType, crossoverCoefficient);
     delete gens;
 }
