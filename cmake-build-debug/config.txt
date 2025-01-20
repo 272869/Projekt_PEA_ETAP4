@@ -2,7 +2,6 @@ mode: test                   # generate tryb pomiarowy, test tryb testowy
                              # ustawienia trybu testowego
 fileName: ftv47.atsp         # scieżka do pliku ftv47.atsp/ftv170.atsp/rbg403.atsp
 probability: 0.1             # prawdopodobieństwo wystąpienia mutacji
-populationCopyNumber: 300    # liczba osobników populacji przenoszona do kolejnej generacji
 generationNumber: 60         # czas
 crossoverCoefficient: 0.8    # współczynnik krzyżowania
 crossoverType: 1             # wybór typu krzyżowania: 0 - Partially Mapped Crossover, 1 - Order Crossover Operator

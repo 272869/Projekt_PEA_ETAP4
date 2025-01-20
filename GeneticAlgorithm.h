@@ -15,7 +15,7 @@ private:
     int **matrix;
     int finalCost = INT_MAX;
     std::vector<unsigned int> globalPath;
-    void mainLoop(mt19937 &engine, double probability, int populationCopyNumber,double maxTime, int crossoverType, double crossoverCoefficient);
+    void mainLoop(mt19937 &engine, double probability,double maxTime, int crossoverType, double crossoverCoefficient);
     void generateParents();
     void countFitnessValue(vector<float> &fitness);
     pair<int, int> rouletteWheelSelection(mt19937 &engine, vector<float> &fitness);
@@ -37,6 +37,6 @@ public:
         matrix = matrixWeights->loadFromFile(fileName);
         //matrixWeights->showTab();
     }
-    void startAlgorithm(double probability, int populationCopyNumber, double maxTime, int crossoverType, double crossoverCoefficient);
+    void startAlgorithm(double probability, double maxTime, int crossoverType, double crossoverCoefficient);
 };
 

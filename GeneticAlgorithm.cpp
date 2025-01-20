@@ -7,15 +7,15 @@
 
 using namespace std;
 // Metoda inicjująca algorytm genetyczny
-void GeneticAlgorithm::startAlgorithm(double probability, int populationCopyNumber, double maxTime, int crossoverType, double crossoverCoefficient) {
+void GeneticAlgorithm::startAlgorithm(double probability,double maxTime, int crossoverType, double crossoverCoefficient) {
     random_device rd; // Generowanie losowego źródła
     mt19937 gen(rd()); // Inicjalizacja silnika RNG
     generateParents(); // Generowanie początkowej populacji
-    mainLoop(gen, probability,populationCopyNumber, maxTime, crossoverType, crossoverCoefficient); // Rozpoczęcie głównej pętli algorytmu
+    mainLoop(gen, probability, maxTime, crossoverType, crossoverCoefficient); // Rozpoczęcie głównej pętli algorytmu
 }
 
 // Główna pętla algorytmu genetycznego
-void GeneticAlgorithm::mainLoop(mt19937 &engine, double probability, int populationCopyNumber,double maxTime, int crossoverType, double crossoverCoefficient) {
+void GeneticAlgorithm::mainLoop(mt19937 &engine, double probability,double maxTime, int crossoverType, double crossoverCoefficient) {
     pair<int, int> parents;
     auto pointer1 = population.begin(); // Wskaźnik na pierwszego rodzica
     auto pointer2 = population.begin(); // Wskaźnik na drugiego rodzica
