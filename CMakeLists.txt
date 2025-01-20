@@ -8,4 +8,6 @@ add_executable(Projekt_4 main.cpp
         ConfigFile.h
         ConfigFile.cpp
         FileReader.h
-        FileReader.cpp)
+        FileReader.cpp
+        Timer.h
+        Timer.cpp)

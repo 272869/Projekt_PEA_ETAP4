@@ -7,7 +7,7 @@ public:
     explicit ConfigFile(const std::string &filename) : filename(filename) {}
 private:
     void handleGenerateMode();
-    void handleTestMode(const std::string& fileName, double probability, int populationSize, int populationCopyNumber, int generationNumber, double crossoverCoefficient,int crossoverType);
+    void handleTestMode(const std::string& fileName, double probability, int populationCopyNumber, int generationNumber, double crossoverCoefficient,int crossoverType);
     std::string filename;
 };
 

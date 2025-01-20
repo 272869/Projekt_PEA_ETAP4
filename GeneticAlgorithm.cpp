@@ -1,169 +1,180 @@
 #include "GeneticAlgorithm.h"
+#include "Timer.h"
 #include <vector>
 #include <iostream>
 #include <algorithm>
 #include <random>
 
 using namespace std;
-
 // Metoda inicjująca algorytm genetyczny
-void GeneticAlgorithm::startAlgorithm(double probability, int populationSize, int populationCopyNumber,int generationNumber, int crossoverType, double crossoverCoefficient) {
-    srand(100);
-    mt19937 gen(rand());
-    generateRandomParents(gen, populationCopyNumber);
-    mainLoop(gen, probability, populationSize, populationCopyNumber, generationNumber, crossoverType, crossoverCoefficient);
+void GeneticAlgorithm::startAlgorithm(double probability, int populationCopyNumber, double maxTime, int crossoverType, double crossoverCoefficient) {
+    random_device rd; // Generowanie losowego źródła
+    mt19937 gen(rd()); // Inicjalizacja silnika RNG
+    generateParents(); // Generowanie początkowej populacji
+    mainLoop(gen, probability,populationCopyNumber, maxTime, crossoverType, crossoverCoefficient); // Rozpoczęcie głównej pętli algorytmu
 }
 
 // Główna pętla algorytmu genetycznego
-void GeneticAlgorithm::mainLoop(mt19937 &engine, double probability, int populationSize, int populationCopyNumber,int generationNumber, int crossoverType, double crossoverCoefficient) {
+void GeneticAlgorithm::mainLoop(mt19937 &engine, double probability, int populationCopyNumber,double maxTime, int crossoverType, double crossoverCoefficient) {
     pair<int, int> parents;
-    auto pointer1 = population.begin();
-    auto pointer2 = population.begin();
-    uniform_real_distribution<double> crossoverChance(0.0, 1.0);
+    auto pointer1 = population.begin(); // Wskaźnik na pierwszego rodzica
+    auto pointer2 = population.begin(); // Wskaźnik na drugiego rodzica
+    uniform_real_distribution<double> crossoverChance(0.0, 1.0); // Rozkład do określania szansy na krzyżowanie
+    Timer timer;
+    timer.start(); // Uruchomienie zegara do mierzenia czasu
+    uint64_t elapsedTime = 0;
 
-    for (int i = 0; i < generationNumber; i++) {
+    int iter = 0; // Licznik iteracji
+    while (elapsedTime < static_cast<uint64_t>(maxTime * 1000000)) { // Pętla wykonuje się, dopóki czas trwania nie przekroczy maksymalnego czasu
+        int populationSize = matrixWeights->size * 2;
         for (int j = 0; j < populationSize; j++) {
-            vector<unsigned> child1(matrixWeights->size, 0);
-            vector<unsigned> child2(matrixWeights->size, 0);
+            vector<unsigned> child1(matrixWeights->size, 0); // Inicjalizacja pierwszego dziecka
+            vector<unsigned> child2(matrixWeights->size, 0); // Inicjalizacja drugiego dziecka
 
             // Selekcja metodą koła ruletki
-            sort(population.begin(), population.end(), cmp);
+            sort(population.begin(), population.end(), cmp); // Sortowanie populacji według dopasowania
             vector<float> fitnessValueTable(population.size(), 0);
-            countFitnessValue(fitnessValueTable);
-            parents = rouletteWheelSelection(engine, fitnessValueTable);
-            parents = tournamentSelection(engine);
+            countFitnessValue(fitnessValueTable); // Obliczanie wartości dopasowania
+            parents = rouletteWheelSelection(engine, fitnessValueTable); // Wybór rodziców
 
-            pointer1 = population.begin() + parents.first;
-            pointer2 = population.begin() + parents.second;
+            pointer1 = population.begin() + parents.first; // Ustawienie wskaźnika na pierwszego rodzica
+            pointer2 = population.begin() + parents.second; // Ustawienie wskaźnika na drugiego rodzica
 
             // Krzyżowanie
-            if (crossoverChance(engine) <= crossoverCoefficient) {
+            if (crossoverChance(engine) <= crossoverCoefficient) { // Decyzja o przeprowadzeniu krzyżowania
                 switch (crossoverType) {
                     case 0:
-                        makePartiallyMappedCrossover(pointer1->second, pointer2->second, child1, child2, engine);
+                        makePartiallyMappedCrossover(pointer1->second, pointer2->second, child1, child2, engine); // PMX
                         break;
                     case 1:
-                        makeOrderCrossoverOperator(pointer1->second, pointer2->second, child1, child2, engine);
+                        makeOrderCrossoverOperator(pointer1->second, pointer2->second, child1, child2, engine); // OX
                         break;
                 }
             } else {
-                child1 = pointer1->second;
+                child1 = pointer1->second; // Przekazanie genotypu rodzica bez zmian
                 child2 = pointer2->second;
             }
 
-            checkMutation(engine, child1, probability, i * populationSize + j);
-            checkMutation(engine, child2, probability, i * populationSize + j);
+            checkMutation(engine, child1, probability, iter * populationSize + j); // Mutacja pierwszego dziecka
+            checkMutation(engine, child2, probability, iter * populationSize + j); // Mutacja drugiego dziecka
         }
-        sort(population.begin(), population.end(), cmp);
-        copyPopulation(populationCopyNumber);
+        sort(population.begin(), population.end(), cmp); // Sortowanie populacji po zakończeniu iteracji
+        copyPopulation(populationSize); // Zachowanie najlepszych osobników
+        iter++;
+        timer.stop();
+        elapsedTime = timer.timeperiod(); // Aktualizacja czasu trwania algorytmu
     }
-    showPath(globalPath);
-    showPRD(generationNumber * populationSize);
+    showPath(globalPath); // Wyświetlenie najlepszej ścieżki
+    showPRD(elapsedTime); // Wyświetlenie odchylenia PRD
 }
 
-// Funkcja obliczania wartości zdatności
+// Funkcja obliczania wartości zdatności (dopasowania)
 void GeneticAlgorithm::countFitnessValue(vector<float> &fitness) {
     for (int i = 0; i < population.size(); i++) {
-        fitness.at(i) = ((float) finalCost / (population.begin() + i)->first);
+        fitness.at(i) = ((float) finalCost / (population.begin() + i)->first); // Obliczanie wartości fitness dla każdego osobnika
     }
 }
 
 // Selekcja metodą koła ruletki
 pair<int, int> GeneticAlgorithm::rouletteWheelSelection(mt19937 &engine, vector<float> &fitness) {
-    float sum = accumulate(fitness.begin(), fitness.end(), 0.0f);
-    uniform_real_distribution<float> randomNumber(0, sum);
+    float sum = accumulate(fitness.begin(), fitness.end(), 0.0f); // Obliczanie sumy wartości fitness
+    uniform_real_distribution<float> randomNumber(0, sum); // Rozkład losowy do wyboru rodziców
     float r1 = randomNumber(engine);
     float r2 = randomNumber(engine);
-    if (r2 < r1) swap(r1, r2);
+    if (r2 < r1) swap(r1, r2); // Zamiana losowych liczb w celu uporządkowania
 
-    pair<int, int> parents(-1, 0);
+    pair<int, int> parents(-1, 0); // Indeksy rodziców
     float sum2 = 0;
 
     for (int i = 0; i < population.size(); i++) {
         sum2 += fitness.at(i);
         if (r1 <= sum2 && parents.first == -1)
-            parents.first = i;
+            parents.first = i; // Wybranie pierwszego rodzica
         else if (r2 <= sum2) {
-            parents.second = i;
+            parents.second = i; // Wybranie drugiego rodzica
             return parents;
         }
     }
     return parents;
 }
 
-// wybieranie rodziców do krzyżowania na podstawie selekcji turniejowej
-pair<int, int> GeneticAlgorithm::tournamentSelection(mt19937 &engine) {
-    uniform_int_distribution<> randomParent(0, static_cast<int>(population.size()) - 1);
-    int a, b;
-    a = randomParent(engine);
-    b = randomParent(engine);
-    pair<int, int> parents;
-    if (population.at(a).first > population.at(b).first)
-        parents.first = b;
-    else
-        parents.first = a;
-    a = randomParent(engine);
-    b = randomParent(engine);
-    if (population.at(a).first > population.at(b).first)
-        parents.second = b;
-    else
-        parents.second = a;
-    return parents;
-}
+// Funkcja sprawdzająca mutację
+void GeneticAlgorithm::checkMutation(mt19937 engine, vector<unsigned int>& child, double probability, uint64_t time) {
+    population.emplace_back(calculateCost(child), child); // Dodanie dziecka do populacji z obliczeniem kosztu
+    pair<int, vector<unsigned int>> pointerLast = population.back(); // Ostatni dodany osobnik
 
+    if (finalCost > pointerLast.first) { // Aktualizacja najlepszego wyniku, jeśli jest lepszy
+        finalCost = pointerLast.first;
+        globalPath = pointerLast.second;
+        showPRD(time);
+    }
 
-// sprawdzenie na podstawie prawdopodobieństwa czy może zajść mutacja
-void GeneticAlgorithm::checkMutation(std::mt19937 engine, vector<unsigned int> &child, double probability, int iter) {
     uniform_real_distribution<double> generateProbability(0.0, 1.0);
-    population.emplace_back(calculateCost(child), child);
-    pair<int, vector<unsigned int>> pointerLast((population.end() - 1)->first, (population.end() - 1)->second);
-    if (finalCost > pointerLast.first) {
-        finalCost = pointerLast.first;
-        globalPath = pointerLast.second;
-        showPRD(iter);
-    }
     double genProb = generateProbability(engine);
-    if (genProb <= 0.1)
-        makeMutationRandomly(&pointerLast, engine);
-    else if (genProb <= probability)
-        makeMutationBest(&pointerLast);
-    else
-        return;
-    population.push_back(pointerLast);
-    if (finalCost > pointerLast.first) {
+
+    if (genProb <= probability) {
+        makeMutationBest(&pointerLast); // Wykonanie mutacji
+    }
+
+    population.push_back(pointerLast); // Dodanie dziecka po mutacji
+
+    if (finalCost > pointerLast.first) { // Ponowna aktualizacja najlepszego wyniku, jeśli mutacja poprawiła wynik
         finalCost = pointerLast.first;
         globalPath = pointerLast.second;
-        showPRD(iter);
+        showPRD(time);
     }
 }
-// generowanie pierwszych rodziców o liczbie populationCopyNumber
-void GeneticAlgorithm::generateRandomParents(std::mt19937 engine, int populationCopyNumber) {
+
+// Generowanie początkowej populacji
+void GeneticAlgorithm::generateParents() {
     vector<unsigned int> vertexes;
-    for (unsigned int i = 0; i < matrixWeights->size; i++) vertexes.push_back(i);
-    for (unsigned int i = 0; i < populationCopyNumber; i++) {
-        shuffle(vertexes.begin(), vertexes.end(), engine);
-        pair<int, vector<unsigned int>> p = {this->calculateCost(vertexes), vertexes};
+    int populationSize = matrixWeights->size * 2;
+    for (unsigned int i = 0; i < matrixWeights->size; i++) vertexes.push_back(i); // Tworzenie listy wierzchołków
+
+    for (unsigned int i = 0; i < populationSize; i++) {
+        vector<unsigned int> path;
+        vector<bool> visited(matrixWeights->size, false); // Tablica odwiedzonych wierzchołków
+        int current = rand() % matrixWeights->size; // Losowy wierzchołek początkowy
+        path.push_back(current);
+        visited[current] = true;
+
+        for (unsigned int j = 1; j < matrixWeights->size; j++) { // Algorytm najbliższego sąsiada
+            int nearest = -1;
+            int minDistance = INT_MAX;
+
+            for (unsigned int k = 0; k < matrixWeights->size; k++) {
+                if (!visited[k] && matrix[current][k] < minDistance) {
+                    minDistance = matrix[current][k];
+                    nearest = k;
+                }
+            }
+
+            path.push_back(nearest);
+            visited[nearest] = true;
+            current = nearest;
+        }
+
+        pair<int, vector<unsigned int>> p = {this->calculateCost(path), path};
         if (p.first < finalCost) {
             finalCost = p.first;
             globalPath = p.second;
-            showPRD(i);
+            showPRD(i); // Pokazanie PRD
         }
-        population.push_back(p);
+        population.push_back(p); // Dodanie ścieżki do populacji
     }
-
 }
 
-// metoda krzyżowania - Partially Mapped Crossover
+// Funkcja wykonująca krzyżowanie metodą PMX
 void GeneticAlgorithm::makePartiallyMappedCrossover(const vector<unsigned int> &parent1, const vector<unsigned int> &parent2, std::vector<unsigned int> &child1, std::vector<unsigned int> &child2, std::mt19937 engine) {
     uniform_int_distribution<> cutPoints(1, matrixWeights->size - 1);
     int a = 0, b = 0;
-    //losowanie punktów przecięcia
-    while (a == b || a > b) {
+
+    while (a == b || a > b) { // Losowanie punktów przecięcia
         a = cutPoints(engine);
         b = cutPoints(engine);
     }
-    //kopiowanie obszarów przecięcia
-    for (int i = a; i <= b; i++) {
+
+    for (int i = a; i <= b; i++) { // Kopiowanie obszarów przecięcia
         child1.at(i) = parent2.at(i);
         child2.at(i) = parent1.at(i);
     }
@@ -176,36 +187,36 @@ void GeneticAlgorithm::makePartiallyMappedCrossover(const vector<unsigned int> &
             copyCutPoints(parent2, &child2, a, b, i, firstNoCopied2);
         }
     }
-    completeRestPoints(firstNoCopied1, parent2, &child1, a, b);
+    completeRestPoints(firstNoCopied1, parent2, &child1, a, b); // Uzupełnienie brakujących punktów
     completeRestPoints(firstNoCopied2, parent1, &child2, a, b);
 }
 
-// metoda krzyżowania - Order Crossover Operator
+// Funkcja wykonująca krzyżowanie metodą OX
 void GeneticAlgorithm::makeOrderCrossoverOperator(const std::vector<unsigned int> &parent1, const std::vector<unsigned int> &parent2, std::vector<unsigned int> &child1, std::vector<unsigned int> &child2, std::mt19937 engine) {
     uniform_int_distribution<> cutPoints(1, static_cast<int>(parent1.size()) - 2);
     int a = 0, b = 0;
-    //losowanie punktów przecięcia
-    while (a == b) {
+
+    while (a == b) { // Losowanie punktów przecięcia
         a = cutPoints(engine);
         b = cutPoints(engine);
     }
     if (a > b)
         swap(a, b);
-    //kopiowanie obszarów przecięcia
-    for (int i = a; i <= b; i++) {
+
+    for (int i = a; i <= b; i++) { // Kopiowanie obszarów przecięcia
         child1.at(i) = parent1.at(i);
         child2.at(i) = parent2.at(i);
     }
-    copySequenceFromOrderCrossoverOperator(parent2, child1, a, b);
-    copySequenceFromOrderCrossoverOperator(parent1, child2, a, b);
+    copySequenceFromOrderCrossoverOperator(parent2, child1, a, b); // Uzupełnienie brakujących punktów w dziecku 1
+    copySequenceFromOrderCrossoverOperator(parent1, child2, a, b); // Uzupełnienie brakujących punktów w dziecku 2
 }
 
-// kopiowanie pozostałych wierzchołków sekwencji, które nie były w wyciętym obszarze
+// Funkcja kopiująca pozostałe punkty sekwencji poza obszarem przecięcia
 void GeneticAlgorithm::copySequenceFromOrderCrossoverOperator(const vector<unsigned int> &parent, vector<unsigned int> &child, const int &a, const int &b) {
     int j = b + 1;
     auto v = parent.begin() + b + 1;
     do {
-        if (find(child.begin() + a, child.begin() + b + 1, *v) == child.begin() + b + 1) {
+        if (find(child.begin() + a, child.begin() + b + 1, *v) == child.begin() + b + 1) { // Dodanie punktów nieobecnych w dziecku
             child.at(j) = *v;
             if (v != parent.end() - 1)
                 v++;
@@ -268,19 +279,6 @@ void GeneticAlgorithm::makeMutationBest(pair<int, vector<unsigned int>> *path) {
     path->first += bestSwap;
 }
 
-// wyznaczanie mutacji losowo
-void GeneticAlgorithm::makeMutationRandomly(pair<int, vector<unsigned int>> *path, mt19937 &engine) {
-    uniform_int_distribution<> swapIndex(1, path->second.size() - 2);
-    int i = 0, j = 0;
-    while (i == j) {
-        i = swapIndex(engine);
-        j = swapIndex(engine);
-    }
-    if (j < i)
-        swap(i, j);
-    path->first += swapNeighbors(&path->second, i, j);
-    swap(path->second.at(i), path->second.at(j));
-}
 
 // podliczanie zmiany kosztów po zamianie wierzchołków
 int GeneticAlgorithm::swapNeighbors(vector<unsigned int> *path, int i, int j) {
@@ -308,13 +306,16 @@ int GeneticAlgorithm::swapNeighbors(vector<unsigned int> *path, int i, int j) {
     return addNewEdges - subtractOldEdges;
 }
 
-// wyświetlanie i obliczanie PRD
-void GeneticAlgorithm::showPRD(int iter) {
+void GeneticAlgorithm::showPRD(uint64_t elapsedTimeMicro) {
     double bestcost403 = 2465;
     double bestcost170 = 2755;
     double bestcost47 = 1776;
-    std::cout << iter<< " "<< finalCost<< "   "<< 100 * (finalCost - bestcost170)/ (bestcost170)<< "% \n";
+
+    // Wyświetlanie w mikrosekundach zamiast iteracji
+    std::cout << elapsedTimeMicro << " us " << finalCost << "   "
+              << 100 * (finalCost - bestcost47) / bestcost47 << "% \n";
 }
+
 
 // wyświetlanie ścieżki
 void GeneticAlgorithm::showPath(vector<unsigned int> path) {
@@ -335,9 +336,7 @@ int GeneticAlgorithm::calculateCost(vector<unsigned int> path) {
     return cost;
 }
 
-// kopiowanie najlepszych jednostek z populacji do nowej generacji
 void GeneticAlgorithm::copyPopulation(int number) {
-    std::vector<std::pair<int, std::vector<unsigned int>>> p2;
-    for (int i = 0; i < number; i++) p2.push_back(population.at(i));
-    population = p2;
+    sort(population.begin(), population.end(), cmp); // Sortowanie według wartości dopasowania
+    population.resize(number); // Ograniczenie rozmiaru populacji do 'number'
 }
