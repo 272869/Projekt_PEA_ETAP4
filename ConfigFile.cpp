@@ -39,13 +39,18 @@ void ConfigFile::parseConfig() {
     // Pobiera tryb działania z konfiguracji i wywołuje odpowiednią funkcję
     const auto& mode = config["mode"];
     if (mode == "generate")
-        handleGenerateMode();
+        handleGenerateMode(config["fileName"], std::stod(config["probability"]),std::stoi(config["populationSize"]),std::stoi(config["maxTime"]),std::stod(config["crossoverCoefficient"]),std::stoi(config["crossoverType"]) );
     else if (mode == "test")
         handleTestMode(config["fileName"], std::stod(config["probability"]),std::stoi(config["populationSize"]),std::stoi(config["maxTime"]),std::stod(config["crossoverCoefficient"]),std::stoi(config["crossoverType"]) );
 }
 
-void ConfigFile::handleGenerateMode() {
+void ConfigFile::handleGenerateMode(const std::string& fileName, double probability,int populationSize, int time, double crossoverCoefficient,int crossoverType) {
     std::cout << "Tryb testowania danych\n";
+    for(int i =0; i<10;i++){
+        GeneticAlgorithm *gens;
+        gens = new GeneticAlgorithm(fileName);
+        gens->startAlgorithm(probability,populationSize, time, crossoverType, crossoverCoefficient);
+    }
 }
 
 void ConfigFile::handleTestMode(const std::string& fileName, double probability,int populationSize, int time, double crossoverCoefficient,int crossoverType) {

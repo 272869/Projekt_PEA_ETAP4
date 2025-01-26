@@ -19,7 +19,3 @@ uint64_t Timer::timeperiod() {
     return static_cast<uint64_t>(finalTime.count() * 1000000);
 }
 
-uint64_t Timer::subTime() {
-    std::chrono::high_resolution_clock::time_point temp = std::chrono::high_resolution_clock::now();
-    return static_cast<uint64_t>((temp - t0).count() * 1000000);
-}

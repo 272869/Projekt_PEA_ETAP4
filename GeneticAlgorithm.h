@@ -9,17 +9,15 @@ class GeneticAlgorithm {
 private:
     FileReader *matrixWeights;
     std::vector<std::pair<int, std::vector<unsigned int>>> population;
-    double bestCost = std::numeric_limits<double>::infinity(); // Inicjalizacja najlepszego kosztu na bardzo dużą wartość
-
     static bool cmp(std::pair<int, std::vector<unsigned int>> &a, std::pair<int, std::vector<unsigned int>> &b) {
         return a.first < b.first;
     }
     int **matrix;
     int finalCost = INT_MAX;
     std::vector<unsigned int> globalPath;
-    void mainLoop(mt19937 &engine, double probability,int populationSize,double maxTime, int crossoverType, double crossoverCoefficient);
+    void mainLoop( double probability,int populationSize,double maxTime, int crossoverType, double crossoverCoefficient);
     void generateParents(int populationSize);
-
+    void generateRandomParents(std::mt19937 engine, int populationSize);
     void countFitnessValue(vector<float> &fitness);
     pair<int, int> rouletteWheelSelection(mt19937 &engine, vector<float> &fitness);
 

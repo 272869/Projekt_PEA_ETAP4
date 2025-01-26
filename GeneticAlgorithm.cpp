@@ -8,24 +8,29 @@
 using namespace std;
 // Metoda inicjująca algorytm genetyczny
 void GeneticAlgorithm::startAlgorithm(double probability,int populationSize,double maxTime, int crossoverType, double crossoverCoefficient) {
-    random_device rd; // Generowanie losowego źródła
-    mt19937 gen(rd()); // Inicjalizacja silnika RNG
-    generateParents(populationSize); // Generowanie początkowej populacji
-    mainLoop(gen, probability,populationSize, maxTime,  crossoverType, crossoverCoefficient); // Rozpoczęcie głównej pętli algorytmu
+        mainLoop(probability, populationSize, maxTime, crossoverType,crossoverCoefficient); // Rozpoczęcie głównej pętli algorytmu
 }
 
-void GeneticAlgorithm::mainLoop(mt19937 &engine, double probability, int populationSize, double maxTime, int crossoverType, double crossoverCoefficient) {
+void GeneticAlgorithm::mainLoop(double probability, int populationSize, double maxTime, int crossoverType, double crossoverCoefficient) {
     pair<int, int> parents;
     auto pointer1 = population.begin(); // Wskaźnik na pierwszego rodzica
     auto pointer2 = population.begin(); // Wskaźnik na drugiego rodzica
     uniform_real_distribution<double> crossoverChance(0.0, 1.0); // Rozkład do określania szansy na krzyżowanie
     Timer timer;
-    timer.start(); // Uruchomienie zegara do mierzenia czasu
     uint64_t elapsedTime = 0;
+    uint64_t elapsedTimeBest = 0;
     int iter = 0; // Licznik iteracji
 
-    bool improved = false; // Flaga do sprawdzenia, czy rozwiązanie zostało poprawione
-
+    random_device rd; // Generowanie losowego źródła
+    mt19937 engine(rd()); // Inicjalizacja silnika RNG
+    for (int i = 0; i < populationSize; ++i) {
+        if (i < populationSize / 2) {
+            generateParents(populationSize);
+        } else {
+            generateRandomParents(engine,populationSize);
+        }
+    }
+    timer.start(); // Uruchomienie zegara do mierzenia czasu
     while (elapsedTime < static_cast<uint64_t>(maxTime * 1000000)) { // Pętla wykonuje się, dopóki czas trwania nie przekroczy maksymalnego czasu
         for (int j = 0; j < populationSize; j++) {
             vector<unsigned> child1(matrixWeights->size, 0); // Inicjalizacja pierwszego dziecka
@@ -54,31 +59,39 @@ void GeneticAlgorithm::mainLoop(mt19937 &engine, double probability, int populat
                 child1 = pointer1->second; // Przekazanie genotypu rodzica bez zmian
                 child2 = pointer2->second;
             }
-
-            checkMutation(engine, child1, probability, iter * populationSize + j); // Mutacja pierwszego dziecka
-            checkMutation(engine, child2, probability, iter * populationSize + j); // Mutacja drugiego dziecka
+            timer.stop();
+            elapsedTime = timer.timeperiod();
+            pair<int, vector<unsigned int>> pointerLast = population.back(); // Ostatni dodany osobnik
+            if (finalCost > pointerLast.first) { // Aktualizacja najlepszego wyniku, jeśli jest lepszy
+                finalCost = pointerLast.first;
+                globalPath = pointerLast.second;
+                elapsedTimeBest = elapsedTime;
+            }
+            checkMutation(engine, child1, probability, elapsedTime); // Mutacja pierwszego dziecka
+            checkMutation(engine, child2, probability, elapsedTime); // Mutacja drugiego dziecka
+            //showPRD(elapsedTime);
         }
 
         sort(population.begin(), population.end(), cmp); // Sortowanie populacji po zakończeniu iteracji
         copyPopulation(populationSize); // Zachowanie najlepszych osobników
         iter++;
-
-        // Aktualizacja najlepszego kosztu, jeśli znaleziono lepsze rozwiązanie
-        if (population[0].first < bestCost) {  // Zakładam, że najlepszy koszt jest zapisany w `population[0].first`
-            bestCost = population[0].first;  // Aktualizacja najlepszego kosztu
-            if (!improved) {
-                timer.stop(); // Zatrzymanie zegara, gdy rozwiązanie zostaje poprawione
-                improved = true; // Ustawiamy flagę, że rozwiązanie zostało poprawione
-                elapsedTime = timer.timeperiod(); // Aktualizacja czasu, kiedy rozwiązanie zostało poprawione
-            }
-        }
+        timer.stop();
+        elapsedTime = timer.timeperiod(); // Aktualizacja czasu trwania algorytmu
     }
 
     showPath(globalPath); // Wyświetlenie najlepszej ścieżki
-    showPRD(elapsedTime); // Wyświetlenie odchylenia PRD
+    showPRD(elapsedTimeBest); // Wyświetlenie odchylenia PRD
 }
 
+void GeneticAlgorithm::showPRD(uint64_t elapsedTimeMicro) {
+    double bestcost403 = 2465;
+    double bestcost170 = 2755;
+    double bestcost47 = 1776;
 
+    // Wyświetlanie kosztu, procentowej różnicy i czasu wykonania w mikrosekundach
+    std::cout << " " << finalCost << " "
+              << 100 * (finalCost - bestcost47) / bestcost47 << " " << elapsedTimeMicro/1000000 << "\n";
+}
 
 // Funkcja obliczania wartości zdatności (dopasowania)
 void GeneticAlgorithm::countFitnessValue(vector<float> &fitness) {
@@ -172,14 +185,19 @@ void GeneticAlgorithm::generateParents(int populationSize) {
 
         // Obliczanie kosztu ścieżki i dodanie jej do populacji
         pair<int, vector<unsigned int>> p = {this->calculateCost(path), path};
+        population.push_back(p); // Dodanie ścieżki do populacji
+    }
+}
 
-        // Jeżeli koszt ścieżki jest mniejszy niż globalny koszt, to aktualizujemy globalny wynik
-        if (p.first < finalCost) {
-            finalCost = p.first;
-            globalPath = p.second;
-            showPRD(i); // Pokazanie PRD (Percentage Relative Deviation)
-        }
-
+void GeneticAlgorithm::generateRandomParents(std::mt19937 engine, int populationSize) {
+    vector<unsigned int> vertexes;
+    for (unsigned int i = 0; i < matrixWeights->size; i++) {
+        vertexes.push_back(i);
+    }
+    for (unsigned int i = 0; i < populationSize; i++) {
+        vector<unsigned int> path = vertexes;
+        shuffle(path.begin(), path.end(),engine);
+        pair<int, vector<unsigned int>> p = {this->calculateCost(path), path};
         population.push_back(p); // Dodanie ścieżki do populacji
     }
 }
@@ -340,16 +358,7 @@ int GeneticAlgorithm::swapNeighbors(vector<unsigned int> *path, int i, int j) {
     return addNewEdges - subtractOldEdges;
 }
 
-// Funkcja pokazująca PRD (Percentage Relative Deviation) na podstawie czasu działania
-void GeneticAlgorithm::showPRD(uint64_t elapsedTimeMicro) {
-    double bestcost403 = 2465;
-    double bestcost170 = 2755;
-    double bestcost47 = 1776;
 
-    // Wyświetlanie kosztu, procentowej różnicy i czasu wykonania w mikrosekundach
-    std::cout << " " << finalCost << " "
-              << 100 * (finalCost - bestcost403) / bestcost403 << " " << elapsedTimeMicro << "\n";
-}
 
 // Wyświetlanie ścieżki
 void GeneticAlgorithm::showPath(vector<unsigned int> path) {
